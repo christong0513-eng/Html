@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>GA3U Module 2 — MCQ Exam (v3 hide shorts until Check answer)</title>
+<style>
+  :root {
+    --navy: #1b3a5f;
+    --teal: #0d6e6e;
+    --green: #1b6b3a;
+    --red: #a33b3b;
+    --grey: #4a4a4a;
+    --muted: #6b6b6b;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --line: #d9e0e7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Calibri, system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--grey);
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 24px 16px calc(48px + env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  h1, h2, h3 { color: var(--navy); margin: 0 0 8px; }
+  .sub { color: var(--teal); font-weight: 600; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 24px;
+    box-shadow: 0 4px 18px rgba(27,58,95,0.06);
+  }
+  .chapters { display: grid; gap: 8px; margin: 18px 0 24px; }
+  .ch {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px; border: 1px solid var(--line); border-radius: 8px;
+    background: #fafbfc; font-size: 15px; cursor: pointer; gap: 10px;
+    min-height: 48px; -webkit-tap-highlight-color: transparent;
+  }
+  .ch:has(input:checked), .ch.on { border-color: var(--teal); background: #f3f8f8; }
+  .ch-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .ch input { flex: 0 0 auto; width: 20px; height: 20px; }
+  .ch b { color: var(--navy); }
+  .sel-row { display: flex; gap: 8px; margin: 14px 0 8px; flex-wrap: wrap; }
+  .btn-small { padding: 10px 14px; font-size: 15px; min-height: 44px; }
+  .home-row { margin-bottom: 14px; }
+  button {
+    font: inherit; cursor: pointer; border: 0; border-radius: 8px;
+    padding: 12px 18px; font-weight: 600; font-size: 16px;
+    min-height: 44px; touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-primary { background: var(--navy); color: #fff; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost { background: #eef2f6; color: var(--navy); }
+  .btn-row { display: flex; gap: 10px; justify-content: space-between; margin-top: 22px; }
+  .progress-wrap { margin-bottom: 16px; }
+  .bar { height: 8px; background: #e6ebf0; border-radius: 99px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: var(--teal); width: 0%; }
+  .meta { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .badge {
+    display: inline-block; background: #e7f3f3; color: var(--teal);
+    font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 99px;
+    margin-bottom: 10px;
+  }
+  .qtext { font-size: 18px; color: var(--navy); line-height: 1.45; margin: 8px 0 18px; }
+  .opts { display: grid; gap: 8px; }
+  .opt {
+    display: flex; gap: 10px; align-items: flex-start;
+    border: 1px solid var(--line); border-radius: 10px; padding: 14px;
+    cursor: pointer; background: #fff; font-size: 16px;
+    min-height: 48px; -webkit-tap-highlight-color: transparent;
+  }
+  .opt:hover { border-color: var(--teal); }
+  .opt.selected { border-color: var(--navy); background: #f3f6fa; }
+  .opt input { margin-top: 3px; width: 20px; height: 20px; flex: 0 0 auto; }
+  .hidden { display: none; }
+  .score-big { font-size: 42px; color: var(--navy); font-weight: 700; }
+  .ch-scores { display: grid; gap: 6px; margin: 16px 0 24px; }
+  .ch-score {
+    display: grid; grid-template-columns: 1fr auto; gap: 8px;
+    padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 14px;
+  }
+  .review { margin-top: 10px; }
+  .rev {
+    border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 10px 0;
+  }
+  .rev.ok { border-left: 5px solid var(--green); }
+  .rev.bad { border-left: 5px solid var(--red); }
+  .rev .mark { font-weight: 700; font-size: 13px; }
+  .ok .mark { color: var(--green); }
+  .bad .mark { color: var(--red); }
+  .rev p { margin: 6px 0; font-size: 15px; }
+  .warn { color: var(--red); font-size: 13px; margin-top: 8px; min-height: 18px; }
+  .scheme {
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--teal);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    background: #f7fbfb;
+  }
+  .scheme ul { padding-left: 18px; line-height: 1.45; margin: 8px 0 0; }
+  #checkAnsBtn { margin: 4px 0 8px; width: 100%; }
+  @media (max-width: 640px) {
+    h1 { font-size: 24px; }
+    .card { padding: 18px 14px; }
+    .qtext { font-size: 17px; }
+    .score-big { font-size: 34px; }
+    .ch { align-items: flex-start; }
+    .ch > span:last-child { flex: 0 0 auto; font-size: 12px; color: var(--muted); }
+    .ch-score { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="start" class="card">
+    <h1>GA3U Module 2 MCQ Exam</h1>
+    <p class="sub">MRI-integrated radiation therapy — 8 lectures · version with short questions</p>
+    <p class="muted">Tick the lectures you want. <b>Start MCQ exam</b> is scored, one per page. Short questions are <b>not</b> inside the MCQ paper.</p>
+    <p class="muted"><b>Review short questions</b> is a separate button. Official shorts are in <b>Lectures 4–8</b> (brain, H&amp;N, abdomen, pelvis, contrast). Lectures 1–3 have none. Tick those lectures or tap <b>Select all</b>, then tap <b>Review short questions</b>. The mark scheme stays hidden until you tap <b>Check answer</b>. Shorts are not scored.</p>
+    <div class="sel-row">
+      <button type="button" class="btn-ghost btn-small" id="allBtn">Select all</button>
+      <button type="button" class="btn-ghost btn-small" id="noneBtn">Clear</button>
+    </div>
+    <div class="chapters" id="chapterList"></div>
+    <p class="muted" id="totalLine"></p>
+    <p class="warn" id="startWarn"></p>
+    <div class="btn-row">
+      <button class="btn-primary" id="startBtn">Start MCQ exam</button>
+      <button class="btn-ghost" id="shortBtn">Review short questions</button>
+    </div>
+  </div>
+
+  <div id="exam" class="card hidden">
+    <div class="home-row">
+      <button type="button" class="btn-ghost" id="homeExamBtn">Home</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="meta">
+        <span id="posLabel"></span>
+        <span id="answeredLabel"></span>
+      </div>
+      <div class="bar"><span id="barFill"></span></div>
+    </div>
+    <div class="badge" id="chapterBadge"></div>
+    <div class="qtext" id="qText"></div>
+    <div class="opts" id="opts"></div>
+    <div class="warn" id="warn"></div>
+    <div class="btn-row">
+      <button class="btn-ghost" id="backBtn">Back</button>
+      <button class="btn-primary" id="nextBtn">Next</button>
+    </div>
+  </div>
+
+  <div id="shorts" class="card hidden">
+    <div class="home-row">
+      <button type="button" class="btn-ghost" id="homeShortBtn">Home</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="meta">
+        <span id="shortPos"></span>
+        <span>Not marked</span>
+      </div>
+      <div class="bar"><span id="shortBar"></span></div>
+    </div>
+    <div class="badge" id="shortBadge"></div>
+    <div class="qtext" id="shortQ"></div>
+    <p class="muted" id="shortHint">Try the question first. The mark scheme is hidden until you tap Check answer.</p>
+    <button type="button" class="btn-ghost" id="checkAnsBtn">Check answer</button>
+    <div id="shortScheme" class="scheme hidden">
+      <p class="muted" id="shortNote"></p>
+      <ul id="shortAns"></ul>
+    </div>
+    <div class="btn-row">
+      <button class="btn-ghost" id="shortBack">Back</button>
+      <button class="btn-primary" id="shortNext">Next</button>
+    </div>
+  </div>
+
+  <div id="result" class="card hidden">
+    <h1>Exam result</h1>
+    <div class="score-big" id="scoreBig"></div>
+    <p class="muted" id="scoreSub"></p>
+    <h2>By lecture</h2>
+    <div class="ch-scores" id="chScores"></div>
+    <h2>Review</h2>
+    <p class="muted">Green = correct. Red = your choice was wrong. The correct option is marked.</p>
+    <div class="review" id="review"></div>
+    <div class="btn-row">
+      <button class="btn-ghost" id="homeResultBtn">Home</button>
+      <button class="btn-ghost" id="resultShortsBtn">Review short questions</button>
+      <button class="btn-primary" id="retryBtn">Start again</button>
+    </div>
+  </div>
+</div>
+<script>
+const DATA = [{"title": "CT–MR registration: benefits and limitations", "questions": [{"n": 1, "q": "Which of the following BEST describes the primary purpose of CT-MR image registration in radiation therapy planning?", "opts": ["A) To replace CT entirely with MRI for all planning functions", "B) To combine CT's geometric accuracy with MRI's superior soft-tissue contrast for improved delineation", "C) To eliminate the need for dose calculation in treatment planning", "D) To reduce the total scan time for patients undergoing radiotherapy", "E) To create a single hybrid modality that replaces both CT and MRI"], "ans": "B"}, {"n": 2, "q": "According to the lecture, what is the main reason CT remains indispensable in radiotherapy planning workflows?", "opts": ["A) CT provides superior soft-tissue contrast compared to MRI", "B) CT is cheaper and more widely available than MRI", "C) CT provides a geometrically reliable patient model and underpins dose calculation", "D) CT does not require any quality assurance procedures", "E) CT scans can be acquired in any patient position without affecting accuracy"], "ans": "C"}, {"n": 3, "q": "What does the acronym \"DIR\" stand for in the context of image registration?", "opts": ["A) Digital Image Reconstruction", "B) Deformable Image Registration", "C) Direct Intensity Rendering", "D) Dual Image Reconstruction", "E) Dynamic Imaging Resolution"], "ans": "B"}, {"n": 4, "q": "Which statement BEST describes the relationship between CT and MRI in terms of physical contrast mechanisms?", "opts": ["A) CT and MRI depict anatomy using identical physical contrast mechanisms", "B) CT measures proton density while MRI measures electron density", "C) CT and MRI use the same physical signal mechanism but different acquisition times", "D) CT measures electron density while MRI measures proton density and relaxation times", "E) Both modalities measure tissue density using X-ray attenuation"], "ans": "D"}, {"n": 5, "q": "What is \"Mutual Information\" (MI) in the context of multimodality image registration?", "opts": ["A) A method that compares identical gray levels directly between CT and MRI", "B) A statistical approach that maximizes the relationship between image intensity patterns across modalities", "C) A technique that uses only anatomical landmarks for alignment", "D) A method that requires manual placement of fiducial markers", "E) A quality assurance tool for measuring patient dose"], "ans": "B"}, {"n": 6, "q": "According to the lecture, a registration should be judged primarily by:", "opts": ["A) How visually appealing the global overlay appears", "B) Whether the software produces a high mutual information score", "C) Whether it is accurate enough in the region that matters for the clinical task", "D) How quickly the software completes the registration process", "E) Whether the bone contours align perfectly throughout the entire image"], "ans": "C"}, {"n": 7, "q": "Which of the following is a key limitation of rigid registration?", "opts": ["A) It allows excessive local warping that may create non-physical anatomy", "B) It assumes anatomy is unchanged in form and only displaced in space", "C) It requires extensive manual landmark placement", "D) It cannot be used for brain or pelvic registrations", "E) It is more computationally intensive than deformable registration"], "ans": "B"}, {"n": 8, "q": "Which statement about deformable image registration (DIR) is CORRECT?", "opts": ["A) DIR is always more accurate than rigid registration in all clinical scenarios", "B) DIR allows local warping to account for anatomical shape differences but adds complexity", "C) DIR eliminates all registration uncertainties", "D) DIR requires no quality assurance or human review", "E) DIR uses a single 3D vector applied to the whole image"], "ans": "B"}, {"n": 9, "q": "What is the primary advantage of MRI in the context of organ delineation for radiotherapy?", "opts": ["A) MRI provides superior soft-tissue contrast compared with CT in many anatomical sites", "B) MRI is geometrically more accurate than CT", "C) MRI can be acquired in any patient position without distortion", "D) MRI does not require any specialized coils or protocols", "E) MRI provides electron density information for dose calculation"], "ans": "A"}, {"n": 10, "q": "According to the lecture, a registration that \"looks good globally\" may still be unsuitable for organ delineation because:", "opts": ["A) Global visual agreement guarantees local clinical correctness", "B) Human observers are strongly influenced by global visual plausibility, but clinically important local mismatch may remain", "C) The software always prioritizes global alignment over local accuracy", "D) Global alignment is the only metric that matters for contouring", "E) Clinical tasks require perfect alignment of the entire image volume"], "ans": "B"}, {"n": 11, "q": "In prostate radiotherapy, what is the primary benefit of using CT-MR fusion for delineation?", "opts": ["A) MRI allows better visualization of bone landmarks for setup", "B) MRI improves confidence in contouring the prostate apex and base, which are often unclear on CT", "C) MRI eliminates the need for fiducial markers in prostate treatments", "D) MRI provides electron density information for dose calculation", "E) MRI reduces the total treatment time for prostate cancer patients"], "ans": "B"}, {"n": 12, "q": "A study comparing CT-only versus CT-MRI prostate delineation found that:", "opts": ["A) CT-based prostate volumes were systematically smaller than MRI-based volumes", "B) CT-based prostate volumes were systematically larger than MRI-based volumes", "C) There was no difference between CT-only and MRI-based prostate volumes", "D) CT could not visualize the prostate at all", "E) MRI prostate volumes were less accurate than CT volumes"], "ans": "B"}, {"n": 13, "q": "According to the lecture, which anatomical site is considered the classic example of why CT-MR fusion became widely adopted in RT planning?", "opts": ["A) Lung", "B) Liver", "C) Prostate", "D) Breast", "E) Bone"], "ans": "C"}, {"n": 14, "q": "In head and neck radiotherapy, which of the following is a significant challenge for CT-MR registration?", "opts": ["A) Respiratory motion causing organ displacement", "B) Bladder and rectal filling variations", "C) Geometric distortion and susceptibility effects, especially near air cavities and dental hardware", "D) Poor soft-tissue contrast on MRI", "E) Lack of any benefit from MRI in this region"], "ans": "C"}, {"n": 15, "q": "The lecture describes MRI as particularly valuable in brain and skull base radiotherapy because:", "opts": ["A) Brain anatomy is often more stable than pelvic anatomy, making fusion more straightforward", "B) Brain tissue has no soft-tissue structures requiring delineation", "C) CT provides better soft-tissue contrast than MRI in the brain", "D) MRI distortion is absent in brain imaging", "E) Rigid registration is never adequate for brain cases"], "ans": "A"}, {"n": 16, "q": "Which of the following is a benefit of CT-MR registration mentioned in the lecture?", "opts": ["A) Elimination of all inter-observer variability in contouring", "B) Improved confidence in target and organ-at-risk delineation", "C) Removal of the need for quality assurance procedures", "D) Guaranteed perfect alignment in all anatomical regions", "E) Automatic correction of all MRI distortions"], "ans": "B"}, {"n": 17, "q": "When MRI is integrated with CT for radiotherapy planning, the MRI primarily adds value in:", "opts": ["A) Dose calculation", "B) Geometric accuracy of the treatment plan", "C) Delineation of targets and organs at risk", "D) Patient positioning verification", "E) Beam attenuation correction"], "ans": "C"}, {"n": 18, "q": "According to the lecture, what is the relationship between CT and MRI sequences in terms of slice thickness?", "opts": ["A) Thick slices improve edge detail and registration accuracy", "B) Slice thickness differences between modalities do not affect registration review", "C) Thick slices reduce edge detail and can make anatomy harder to match precisely across modalities", "D) MRI must always use thicker slices than CT", "E) Slice thickness only matters for dose calculation, not registration"], "ans": "C"}, {"n": 19, "q": "The lecture suggests that MRI sequence choice is important because:", "opts": ["A) All MRI sequences provide identical anatomical information", "B) Different sequences highlight different anatomy and pathology, and the most visually impressive sequence is not always the best for registration", "C) Only T2-weighted imaging should be used for radiotherapy planning", "D) Diagnostic MRI protocols are always optimal for treatment planning", "E) Sequence choice does not affect registration accuracy"], "ans": "B"}, {"n": 20, "q": "A contouring error that results in under-contouring of the target volume can lead to:", "opts": ["A) Geographic miss and underdose to the target", "B) Irradiation of unnecessary normal tissue", "C) Improved treatment outcomes", "D) Reduced side effects", "E) Smaller planning target volume margins"], "ans": "A"}], "shorts": []}, {"title": "CT–MR registration: challenges and uncertainties", "questions": [{"n": 21, "q": "Which of the following is a source of geometric distortion in MRI that is SYSTEM-induced?", "opts": ["A) Susceptibility effects from dental fillings", "B) Chemical shift at fat-water interfaces", "C) Main field inhomogeneity and gradient nonlinearity", "D) Patient motion during the scan", "E) Bladder filling variation between scans"], "ans": "C"}, {"n": 22, "q": "Patient-induced MRI distortion includes:", "opts": ["A) Gradient nonlinearity", "B) Main field inhomogeneity", "C) Susceptibility effects and chemical shift at tissue interfaces", "D) Receiver bandwidth limitations", "E) Field of view selection errors"], "ans": "C"}, {"n": 23, "q": "According to the lecture, MRI geometric accuracy is usually:", "opts": ["A) Best near the periphery of the field of view", "B) Best near the magnet isocenter", "C) Uniform throughout the entire image volume", "D) Independent of the patient position", "E) Worse near the center of the field"], "ans": "B"}, {"n": 24, "q": "Which of the following factors can contribute to setup mismatch between CT and MRI?", "opts": ["A) Use of the same immobilization devices for both scans", "B) Matching head support and coil arrangement", "C) Different patient positioning, head support, and coil setup between scans", "D) Shorter time interval between acquisitions", "E) Use of identical scan protocols"], "ans": "C"}, {"n": 25, "q": "In pelvic radiotherapy, bladder and rectal filling variations between CT and MRI primarily affect:", "opts": ["A) Bone alignment for setup verification", "B) Prostate position and target delineation", "C) Skin surface registration", "D) Lung volume estimation", "E) Dental artifact correction"], "ans": "B"}, {"n": 26, "q": "According to the lecture, which of the following is a limitation of intensity-based registration methods like Mutual Information?", "opts": ["A) They require manual placement of anatomical landmarks", "B) They cannot be used for multimodality registration", "C) They may focus on global features and miss clinically important local mismatch", "D) They are not fully automatic", "E) They only work for rigid registration"], "ans": "C"}, {"n": 27, "q": "The Jacobian determinant in deformable image registration is used to:", "opts": ["A) Measure the overlap between two contours", "B) Assess local expansion or compression in the deformation field", "C) Calculate the center of mass shift", "D) Measure the worst-case boundary error", "E) Evaluate the signal-to-noise ratio of the images"], "ans": "B"}, {"n": 28, "q": "A negative Jacobian determinant value in DIR indicates:", "opts": ["A) Local tissue expansion", "B) No volume change", "C) Nonphysical deformation (tissue folding)", "D) Excellent registration quality", "E) Local tissue compression"], "ans": "C"}, {"n": 29, "q": "According to the lecture, what is the \"Achilles heel\" of CT-MR registration?", "opts": ["A) The high cost of MRI scanners", "B) The lack of evidence supporting its clinical use", "C) It introduces a new type of error — registration uncertainty", "D) MRI is not widely available in radiotherapy departments", "E) CT and MRI cannot be physically integrated in the same scanner"], "ans": "C"}, {"n": 30, "q": "The lecture states that \"the most visually striking sequence is rarely the most spatially reliable for treatment planning\" because:", "opts": ["A) Visually striking sequences always have the highest SNR", "B) Sequences optimized for lesion detection (like EPI/DWI) may sacrifice geometric fidelity", "C) All MRI sequences have identical geometric accuracy", "D) Spatial reliability is unrelated to sequence type", "E) Treatment planning does not require geometric accuracy"], "ans": "B"}, {"n": 31, "q": "What is the Target Registration Error (TRE)?", "opts": ["A) The distance between corresponding anatomical landmarks after registration", "B) The overlap between two contours expressed as a percentage", "C) The average boundary separation between two contours", "D) The maximum contour separation between two structures", "E) The net displacement of a contour's center of mass"], "ans": "A"}, {"n": 32, "q": "A Dice Similarity Coefficient (DSC) value greater than 0.90 is generally interpreted as:", "opts": ["A) Poor agreement", "B) Moderate agreement", "C) Good agreement", "D) Excellent agreement", "E) No agreement"], "ans": "D"}, {"n": 33, "q": "Which metric is BEST suited for detecting focal, worst-case boundary errors that might be missed by average metrics?", "opts": ["A) Dice Similarity Coefficient (DSC)", "B) Mean Distance to Agreement (MDA)", "C) Hausdorff Distance", "D) Center of Mass Shift", "E) Target Registration Error (TRE)"], "ans": "C"}, {"n": 34, "q": "According to the lecture, what is the Mean Distance to Agreement (MDA)?", "opts": ["A) The maximum distance between two contour boundaries", "B) The net displacement of a contour's center of mass", "C) The average boundary separation between two contours", "D) The distance between corresponding anatomical landmarks", "E) The percentage overlap between two structures"], "ans": "C"}, {"n": 35, "q": "The AAPM Task Group No. 132 (TG-132) provides recommendations for:", "opts": ["A) MRI sequence optimization for radiotherapy", "B) Validation and quality assurance of image registration in radiotherapy workflows", "C) Patient positioning protocols for CT simulation", "D) Dose calculation algorithms in treatment planning", "E) Radiation safety guidelines for MRI scanners"], "ans": "B"}, {"n": 36, "q": "Which of the following is a limitation of phantom-based QA for registration validation?", "opts": ["A) Phantoms cannot be used to assess MRI distortion", "B) Phantoms cannot fully reproduce patient-induced distortion or anatomy change between scans", "C) Phantoms are too expensive for routine clinical use", "D) Phantom testing is not recommended by TG-132", "E) Phantoms provide no known geometry for comparison"], "ans": "B"}, {"n": 37, "q": "According to the lecture, the therapist's responsibility in the registration workflow includes:", "opts": ["A) Assuming the software has performed the registration correctly", "B) Treating all contours as final truth without review", "C) Choosing the right image pair, reviewing the fusion, and identifying signs of failure", "D) Performing dose calculations independently of the registration", "E) Delegating all QA responsibilities to the physics team"], "ans": "C"}, {"n": 38, "q": "Which statement about registration QA is CORRECT?", "opts": ["A) Visual review alone is sufficient for registration validation", "B) Quantitative metrics alone are sufficient for registration validation", "C) Registration QA should combine visual review with multiple quantitative metrics", "D) Registration QA is not necessary for rigid registrations", "E) Registration QA should only be performed during commissioning"], "ans": "C"}, {"n": 39, "q": "When a workflow bias is repeated consistently in the same direction, the resulting contour error becomes:", "opts": ["A) Random and unpredictable", "B) Systematic rather than random", "C) Easier to correct automatically", "D) Less clinically significant", "E) Independent of the registration method used"], "ans": "B"}, {"n": 40, "q": "In the context of contouring QA, why is the \"final approval\" of contours important?", "opts": ["A) Contours generated from registration are always accurate", "B) Contours with acceptable average metrics are always clinically usable", "C) Final approval still requires anatomy-based human review", "D) Software-generated contours require no human verification", "E) Contours are drafts that never need approval"], "ans": "C"}, {"n": 41, "q": "What is the primary advantage of an MRI-only radiotherapy planning workflow over CT-MR registration?", "opts": ["A) MRI-only planning eliminates the need for dose calculation", "B) MRI-only planning removes the CT-MR co-registration step, eliminating one systematic source of contour transfer error", "C) MRI-only planning eliminates all MRI distortion", "D) MRI-only planning does not require any quality assurance", "E) MRI-only planning uses less expensive equipment"], "ans": "B"}, {"n": 42, "q": "In an MRI-only workflow, what is required for dose calculation that is normally provided by CT?", "opts": ["A) Additional MRI sequences for soft-tissue contrast", "B) Synthetic CT (sCT) generation from the MRI data", "C) Fiducial marker placement for localization", "D) Direct conversion of MRI signal to electron density", "E) Registration to a reference database"], "ans": "B"}, {"n": 43, "q": "Which of the following is a remaining challenge for MRI-only planning that is also present in MR-CT registration?", "opts": ["A) Registration uncertainty", "B) Cross-modality anatomical correspondence dependence", "C) MRI distortion", "D) Fusion-induced contour displacement", "E) Contour transfer error"], "ans": "C"}, {"n": 44, "q": "According to the lecture, the site with the MOST challenging geometry for MR-CT registration is:", "opts": ["A) Brain", "B) Prostate", "C) Head and Neck", "D) Thorax", "E) Breast"], "ans": "C"}, {"n": 45, "q": "In the head and neck region, single-shot EPI DWI distortions can exceed:", "opts": ["A) 1 mm", "B) 3 mm", "C) 5 mm", "D) 10 mm", "E) 20 mm"], "ans": "D"}, {"n": 46, "q": "According to the lecture, for pelvic radiotherapy, which of the following is recommended to improve registration consistency?", "opts": ["A) Using EPI-based DWI for maximum tumor contrast", "B) Standardized patient preparation and TSE-based DWI for RT", "C) Avoiding MRI entirely for pelvic cases", "D) Using only rigid registration regardless of anatomy", "E) Acquiring MRI in diagnostic position for better contrast"], "ans": "B"}, {"n": 47, "q": "What is the effect of using a wider receiver bandwidth in MRI acquisition?", "opts": ["A) Increased distortion but better signal-to-noise ratio", "B) Reduced distortion but lower signal-to-noise ratio", "C) No effect on distortion or image quality", "D) Increased geometric distortion with no SNR change", "E) Reduced distortion and improved SNR"], "ans": "B"}, {"n": 48, "q": "According to the lecture, in the context of MRI protocol optimization, the trade-off for higher resolution is:", "opts": ["A) Improved detail but reduced signal-to-noise ratio and robustness", "B) Reduced detail but better signal-to-noise ratio", "C) Improved distortion correction", "D) Shorter scan time", "E) No impact on image quality"], "ans": "A"}, {"n": 49, "q": "The lecture concludes that robust practice for MR-CT registration requires all of the following EXCEPT:", "opts": ["A) MRI quality assurance", "B) Registration quality assurance", "C) Protocol control and setup consistency", "D) Eliminating all human review of registrations", "E) Task-based acceptance criteria"], "ans": "D"}, {"n": 50, "q": "Which statement BEST summarizes the lecture's final message about MR-CT registration?", "opts": ["A) MR-CT registration is clinically valuable but must be commissioned, measured, and reviewed with appropriate QA", "B) MR-CT registration should be avoided due to excessive uncertainty", "C) MR-CT registration is perfectly accurate and requires no QA", "D) MR-CT registration will be completely replaced by MRI-only planning within the next year", "E) MR-CT registration is only useful for brain and prostate cases"], "ans": "A"}], "shorts": []}, {"title": "MRI parameters and post-processing", "questions": [{"n": 1, "q": "How do fluids typically appear on T1-weighted and T2-weighted images?", "opts": ["A) Bright on T1-weighted images and dark on T2-weighted images", "B) Dark on T1-weighted images and bright on T2-weighted images", "C) Bright on both T1-weighted and T2-weighted images", "D) Dark on both T1-weighted and T2-weighted images", "E) Bright on T1-weighted images only after fat saturation"], "ans": "B"}, {"n": 2, "q": "Which TR and TE combination produces a T1-weighted image?", "opts": ["A) Short TR and short TE", "B) Short TR and long TE", "C) Long TR and long TE", "D) Long TR and short TE", "E) Intermediate TR and long TE"], "ans": "A"}, {"n": 3, "q": "What is a key effect of using a long TE (>80 ms)?", "opts": ["A) T2 decay is prevented, so SNR is maximised", "B) Fat is the only remaining bright tissue", "C) Tissues with short T2 lose signal, so fluid and pathology stay bright, but overall SNR falls", "D) It is required to produce a T1-weighted image", "E) Contrast is then controlled only by flip angle"], "ans": "C"}, {"n": 4, "q": "Which pair of changes both improve spatial resolution but typically reduce SNR?", "opts": ["A) Smaller FOV and a finer matrix", "B) Larger FOV and a coarser matrix", "C) Thicker slices and a larger FOV", "D) Coarser matrix and fewer phase-encode steps", "E) Thicker slices and higher NEX"], "ans": "A"}, {"n": 5, "q": "What is the partial volume effect described in the lecture?", "opts": ["A) Thin slices split one tissue into many voxels and increase SNR", "B) Thick slices put more than one tissue into one voxel, so small structures can be missed", "C) It only occurs in 3D scans that have no slice gap", "D) It is caused by using a large flip angle", "E) It is another name for wrap / aliasing"], "ans": "B"}, {"n": 6, "q": "For radiotherapy MRI, slice thickness is usually:", "opts": ["A) 4–5 mm, the same as most diagnostic body scans", "B) 1–2 mm, to give volumetric data for target and OAR delineation and fusion", "C) Always thicker than diagnostic MRI, to save time", "D) Unimportant, because fusion can correct a thick slice", "E) 3–4 mm, matching diagnostic spine protocol only"], "ans": "B"}, {"n": 7, "q": "What is the main reason for using a slice gap in 2D multi-slice MRI?", "opts": ["A) To increase scan time", "B) To prevent cross-talk between slices", "C) To create gaps in 3D volume acquisitions", "D) To increase chemical shift", "E) To replace saturation bands"], "ans": "B"}, {"n": 8, "q": "Which statement about STIR and FLAIR is CORRECT?", "opts": ["A) STIR uses a long TI to null CSF; FLAIR uses a short TI to null fat", "B) STIR uses a short TI to null fat; FLAIR uses a long TI to null free fluid (CSF)", "C) Both sequences null fat and cannot show oedema", "D) FLAIR cannot be used in the brain", "E) STIR is the preferred sequence immediately after gadolinium"], "ans": "B"}, {"n": 9, "q": "A patient has already received gadolinium. Which statement is CORRECT?", "opts": ["A) STIR should not be used", "B) FLAIR cannot be used in the brain after contrast", "C) STIR is preferred because it nulls enhancing tumour", "D) Gadolinium makes STIR better for marrow oedema", "E) Post-contrast imaging should use STIR instead of T1-weighted images"], "ans": "A"}, {"n": 10, "q": "If NEX (NSA) is doubled, what happens to scan time and SNR?", "opts": ["A) Scan time stays the same; SNR doubles", "B) Scan time doubles; SNR doubles", "C) Scan time doubles; SNR increases by a factor of about 1.41 (about 41%)", "D) Scan time is halved; SNR increases by 41%", "E) Scan time doubles; SNR does not change"], "ans": "C"}, {"n": 11, "q": "When is a wide receiver bandwidth MOST appropriate?", "opts": ["A) When the main goal is maximum SNR and fat–water interfaces are not a problem", "B) When metal distortion, chemical shift, EPI or DWI must be controlled", "C) Only for routine T1-weighted anatomy at 1.5T", "D) Never, because wide bandwidth always increases chemical shift", "E) Only when STIR is used"], "ans": "B"}, {"n": 12, "q": "Compared with 1.5T, which statement about 3T is CORRECT?", "opts": ["A) SNR is about four times higher, and SAR is unchanged", "B) SNR is roughly double, and RF heating (SAR) is about four times higher", "C) T1 is shorter, so TR and TI should be reduced", "D) Chemical shift is smaller, so receiver bandwidth can be narrowed", "E) Flip angles are usually increased to stay within SAR limits"], "ans": "B"}, {"n": 13, "q": "Saturation bands can reduce flow, motion and wrap artefact. What does the lecture warn about their use?", "opts": ["A) Use or overuse can lead to signal loss and increased SAR", "B) They always reduce SAR", "C) They replace the need to set a correct FOV", "D) They have no role in wrap prevention", "E) They are required in every 3D sequence"], "ans": "A"}, {"n": 14, "q": "The basic 2D scan time formula given in the lecture is:", "opts": ["A) TE × matrix × FOV", "B) TR × Ny × NEX", "C) TR × TE × slice thickness", "D) FOV × NEX × TE", "E) Flip angle × TR × bandwidth"], "ans": "B"}, {"n": 15, "q": "Which statement about flip angle is CORRECT?", "opts": ["A) Large flip angles (70–90°) give strong signal and strong T1 contrast when TR is short, but they increase SAR", "B) Large flip angles reduce SAR and are typical for gradient-echo T2/PD", "C) Small flip angles (1–30°) are the usual choice for spin-echo T1 anatomy", "D) A 180° excitation pulse gives the maximum initial spin-echo signal", "E) Flip angle does not affect image brightness or RF heating"], "ans": "A"}, {"n": 16, "q": "Wrapping (aliasing) occurs when anatomy extends beyond the FOV. A practical way to reduce it is:", "opts": ["A) Swap phase and frequency so the phase-encode direction is along the shortest anatomy", "B) Always double NEX", "C) Use the longest possible TE", "D) Choose STIR instead of FLAIR", "E) Increase flip angle to 90°"], "ans": "A"}], "shorts": []}, {"title": "Brain and spine organ contouring", "questions": [{"q": "Which sequence is mainly used to match bony landmarks with planning CT?", "opts": ["A) T2W", "B) T1W", "C) DWI", "D) FLAIR only", "E) T2W fat-suppressed"], "ans": "B", "n": 1}, {"q": "Bony cortex usually appears as what signal on both T1W and T2W MRI?", "opts": ["A) Hyperintense", "B) Hypointense", "C) Isointense", "D) Contrast-enhancing", "E) Variable only on T2W"], "ans": "B", "n": 2}, {"q": "In T1W MRI, bones may appear slightly hyperintense because of:", "opts": ["A) Cortical calcium", "B) Fatty marrow", "C) Flow void", "D) Oedema", "E) CSF"], "ans": "B", "n": 3}, {"q": "Which feature is typically hyperintense on T2W MRI?", "opts": ["A) Bony cortex", "B) Vasogenic oedema", "C) Calcification", "D) Air", "E) Fast-flowing arterial blood"], "ans": "B", "n": 4}, {"q": "Which landmark is particularly useful for MRI–CT registration around the brainstem?", "opts": ["A) Pineal gland", "B) Pre-pontine cistern", "C) Frontal sinus", "D) Mastoid process", "E) Corpus callosum"], "ans": "B", "n": 5}, {"q": "Which MRI acquisition is preferred for accurate brain radiotherapy planning?", "opts": ["A) Slice thickness ≥10 mm", "B) Slice thickness 5–8 mm", "C) Fine-cut slices of ≤2 mm", "D) One axial T1W slice only", "E) CT without MRI"], "ans": "C", "n": 6}, {"q": "For hippocampal delineation, what is highly recommended?", "opts": ["A) CT-only contouring", "B) 3D MRI–CT co-registration", "C) T2W imaging alone", "D) DWI alone", "E) PET-only planning"], "ans": "B", "n": 7}, {"q": "In the EORTC approach for glioblastoma contouring, the GTV includes:", "opts": ["A) Peritumoural oedema only", "B) T1-enhancing tumour, residual tumour, and postoperative cavity", "C) T2-FLAIR abnormality only", "D) The whole cerebral hemisphere", "E) The surgical scar only"], "ans": "B", "n": 8}, {"q": "Which factor can make spinal MRI–CT co-registration difficult?", "opts": ["A) Identical patient positioning", "B) Different spinal curvature between scans", "C) Use of whole-spine CT", "D) Visible osteophytes", "E) Multiple vertebral landmarks"], "ans": "B", "n": 9}, {"q": "Which action best reduces the risk of registering the wrong spinal level?", "opts": ["A) Restrict CT to a very short scan range", "B) Use one vertebral body as the only landmark", "C) Include the whole relevant spinal region on planning CT", "D) Ignore anatomical variants", "E) Avoid comparison with MRI"], "ans": "C", "n": 10}, {"q": "How does the pre-pontine cistern usually appear?", "opts": ["A) Bright on CT, T1W and T1W+contrast, and dark on T2W", "B) Dark (hypodense / hypointense) on CT, T1W and T1W+contrast, but hyperintense on T2W", "C) Dark on every sequence, including T2W", "D) Bright on T1W+contrast only", "E) It cannot be used as a registration landmark"], "ans": "B", "n": 11}, {"q": "In Aizer et al. (JAMA 2026), patients with 5–20 brain metastases were randomised to stereotactic radiation vs hippocampal-avoidance WBRT. What was the main result?", "opts": ["A) Stereotactic radiation improved symptoms and daily function; overall survival was similar", "B) HA-WBRT doubled overall survival", "C) Stereotactic radiation was worse for symptoms, so HA-WBRT is always preferred", "D) MRI fusion is not needed for either technique", "E) The trial included only glioblastoma, not metastases"], "ans": "A", "n": 12}, {"q": "In the same JAMA 2026 trial, which trade-off is CORRECT?", "opts": ["A) Stereotactic radiation had more new distant brain metastases, but less local recurrence than HA-WBRT", "B) Stereotactic radiation had fewer distant metastases and more local recurrence", "C) HA-WBRT had far fewer serious (grade 3–5) side effects overall", "D) Survival was much longer after stereotactic radiation", "E) Salvage whole-brain radiation was never needed after SRS"], "ans": "A", "n": 13}, {"q": "In the EORTC and RTOG examples on the lecture slide, how are CTV and PTV created from GTV?", "opts": ["A) CTV = 2 cm outward from GTV; PTV = 3 mm outward from CTV (then trim to anatomy)", "B) No CTV margin is used", "C) PTV is smaller than GTV", "D) CTV = 5 mm for these guideline examples", "E) CTV = 15 mm on this lecture slide"], "ans": "A", "n": 14}, {"q": "In the Lancet Oncology adaptive MR-linac study shown in the lecture, which statement is CORRECT?", "opts": ["A) Adaptation used T1W contrast-enhanced and T2 FLAIR images; marginal failure was 4% (4 of 98)", "B) Adaptation used CT only, with a 50% marginal failure rate", "C) T2 FLAIR must not be used for adaptive glioma RT", "D) The study proved that fusion to planning CT is no longer needed in any brain RT", "E) DWI replaced T1W+contrast for all adaptive fractions"], "ans": "A", "n": 15}, {"q": "In the 2023 MR-linac FSRT study for brain metastases (Clin Transl Radiat Oncol), what was shown?", "opts": ["A) Tumour and edema can change between fractions; some non-adaptive plans missed PTV coverage; all adaptive plans met coverage, especially useful if edema or multiple lesions", "B) Anatomy never changed during 5 fractions, so adaptation is unnecessary", "C) Non-adaptive plans always covered PTV better than adaptive plans", "D) Only bone matching on CT is required on MR-linac", "E) Whole-brain dose increased with adaptive planning"], "ans": "A", "n": 16}], "shorts": [{"q": "What are the essential MRI sequences used for brain radiotherapy, and what information does each sequence provide? (4 marks)", "note": "Any 4 points.", "bullets": ["T1-weighted imaging provides good anatomical detail and demonstrates fatty bone marrow as relatively hyperintense.", "T1-weighted imaging can help match bony landmarks when MRI is registered with the planning CT.", "Contrast-enhanced T1-weighted imaging demonstrates enhancing tumours, residual disease and postoperative tumour cavities.", "Contrast-enhanced T1-weighted imaging is commonly used to define the enhancing component of the GTV.", "T2-weighted imaging demonstrates water-containing structures such as cerebrospinal fluid and vasogenic oedema as hyperintense.", "T2-weighted imaging assists registration and contouring around structures such as the brainstem, pre-pontine cistern, spinal cord and spinal canal.", "T2-FLAIR imaging suppresses free cerebrospinal-fluid signal and improves visualisation of peritumoural oedema and other abnormal parenchymal signals.", "Diffusion-weighted imaging may help identify lesions with poorly defined borders or areas of restricted diffusion."]}, {"q": "A postoperative spine MRI contains extensive metallic artefacts. What difficulties could these artefacts cause during image registration and contouring, and how could they be managed? (4 marks)", "note": "Any 4 points.", "bullets": ["Metallic implants can cause signal loss or signal voids around the operated vertebral levels.", "They can produce geometric distortion and displacement of anatomical structures.", "Artefacts may obscure the postoperative tumour bed, residual disease or surgical cavity.", "They may prevent clear visualisation of the spinal cord, spinal canal and other organs at risk.", "MRI–CT registration may become inaccurate because reliable corresponding landmarks cannot be identified.", "The planning CT should be reviewed together with preoperative and postoperative MRI to improve anatomical interpretation.", "Registration may be performed locally at different spinal levels, using unaffected vertebrae and visible anatomical or pathological landmarks.", "When the spinal cord or canal remains unclear, planning CT myelography may be considered following discussion with the treating oncologist."]}, {"q": "Why might multiple local registrations be necessary when registering spine MRI with planning CT, particularly in a patient with lumbarisation, sacralisation, or altered spinal curvature? (4 marks)", "note": "Any 4 points.", "bullets": ["Lumbarisation or sacralisation creates variant vertebral anatomy and can cause incorrect vertebral numbering.", "A vertebral level on MRI may therefore be mistakenly matched with a different level on planning CT.", "MRI and planning CT may cover different or limited portions of the spine.", "The absence of an external spinal-level marker can make confirmation of the correct level more difficult.", "Differences in patient positioning may produce different spinal curvatures on MRI and planning CT.", "A single global registration may align one part of the spine but misalign other parts.", "Separate local registrations allow the vertebral body, transverse processes, spinous process and spinal canal to be aligned at relevant levels.", "Disc disease, osteophytes, compression fractures or other distinctive pathological features may be used as local registration landmarks."]}, {"q": "Explain the roles of T1W, T1W contrast-enhanced, and T2W MRI in brain radiotherapy contouring and MRI–CT co-registration. (6 marks)", "note": "6 marks. Cover all three sequences.", "bullets": ["T1W: anatomical detail; fatty marrow relatively hyperintense; used to match bony landmarks with planning CT.", "T1W: bony cortex is hypointense, which also helps bone matching.", "T1W contrast-enhanced: shows enhancing tumour, residual disease and postoperative cavities.", "T1W contrast-enhanced: used to define the enhancing GTV; large arteries may be dark because of flow-void.", "T2W: CSF and vasogenic oedema are hyperintense; FLAIR suppresses free CSF and shows peritumoural oedema.", "T2W: helps registration and contouring at the brainstem, pre-pontine cistern, spinal cord and spinal canal."]}, {"q": "State four challenges in MRI–CT co-registration for spine radiotherapy, and describe two methods to improve registration accuracy. (6 marks)", "note": "4 challenges + 2 methods.", "bullets": ["Wrong vertebral numbering (lumbarisation / sacralisation, limited scan range, no level marker).", "Different spinal curvature or patient position between MRI and planning CT.", "Metallic artefact after surgery: signal void, distortion, poorly seen cord or cavity.", "A single global registration may fit one level and miss another.", "Improve: include the whole relevant spinal region on planning CT; use local registrations at the levels that matter.", "Improve: use distinctive local landmarks (disc, osteophyte, compression fracture); review pre- and postoperative MRI with planning CT; consider CT myelography if the cord remains unclear, after discussion with the oncologist."]}]}, {"title": "Head and neck organ contouring", "questions": [{"q": "Which MRI sequences are essential for preoperative head and neck radiotherapy planning?", "opts": ["A) T1W only", "B) T2W only", "C) T1W, contrast-enhanced T1W, and T2W", "D) DWI only", "E) PET only"], "ans": "C", "n": 1}, {"q": "What slice thickness is preferred for head and neck MRI used in radiotherapy planning?", "opts": ["A) ≤2 mm", "B) 4 mm", "C) 6 mm", "D) 8 mm", "E) ≥10 mm"], "ans": "A", "n": 2}, {"q": "Why can large arteries appear hypointense on T1W contrast-enhanced images?", "opts": ["A) Fat saturation", "B) Flow-void effect", "C) Calcification", "D) Motion artefact", "E) Chemical shift artefact"], "ans": "B", "n": 3}, {"q": "Bony cortex generally appears:", "opts": ["A) Hyperintense on T1W and T2W", "B) Hypointense on T1W only", "C) Hypointense on T2W only", "D) Hypointense on both T1W and T2W", "E) Isointense on all sequences"], "ans": "D", "n": 4}, {"q": "Why do carotid and vertebral arteries commonly appear hypointense on T1W contrast-enhanced MRI?", "opts": ["A) Slow venous flow", "B) Flow-void effect", "C) Fat suppression", "D) Gadolinium accumulation", "E) Partial-volume averaging"], "ans": "B", "n": 5}, {"q": "Jugular veins usually appear contrast-enhancing on T1W contrast-enhanced images because:", "opts": ["A) They contain fatty marrow", "B) Their blood flow is slower", "C) They contain CSF", "D) They have bony walls", "E) They produce susceptibility artefact"], "ans": "B", "n": 6}, {"q": "Postoperative head and neck MRI is especially recommended when the patient has undergone:", "opts": ["A) Simple biopsy only", "B) Flap reconstruction or graft placement", "C) Dental cleaning", "D) CT simulation only", "E) Non-surgical chemotherapy"], "ans": "B", "n": 7}, {"q": "Which is a critical OAR that can be aided by MRI during head and neck contouring?", "opts": ["A) Femoral head", "B) Cochlea", "C) Kidney", "D) Bladder", "E) Rectum"], "ans": "B", "n": 8}, {"q": "Why may multiple MRI–CT co-registrations be required in head and neck radiotherapy?", "opts": ["A) CT cannot display bone", "B) MRI cannot display soft tissue", "C) Head and neck curvature may differ between MRI and CT acquisitions", "D) Contrast-enhanced MRI cannot show vessels", "E) MRI has no role in OAR contouring"], "ans": "C", "n": 9}, {"q": "Besides brainstem and spinal cord, T2W is also important for MRI–CT registration of which head and neck OARs?", "opts": ["A) Only the skin surface", "B) Optic nerves and chiasm (and pre-pontine cistern)", "C) Only fatty marrow in the mandible", "D) Only the flap pedicle on CT", "E) Only the cochlea on plain X-ray"], "ans": "B", "n": 10}, {"q": "Le Guevelou et al. (Radiother Oncol 2020) described flap contouring in postoperative head and neck RT. What was the problem they addressed?", "opts": ["A) Flap delineation was already standardised in all CTV guidelines", "B) Flap contouring was unusual and inconsistent; there were no guidelines on how to draw flaps", "C) Flaps must never be drawn on planning CT", "D) Only PET can show a flap", "E) Pedicles must never be identified"], "ans": "B", "n": 11}, {"q": "When contouring a reconstructive flap on planning CT, what should be delineated according to the 2020 atlas shown in the lecture?", "opts": ["A) The flap body only; the pedicle is ignored", "B) The flap body and the pedicle; use the operative report (tissue type, size, location)", "C) Skin only, never muscle or bone", "D) The contralateral neck only", "E) CSF spaces only"], "ans": "B", "n": 12}, {"q": "According to Thariat et al. (Front Oncol 2024), where does tumour relapse usually occur after flap reconstruction?", "opts": ["A) In the centre of the flap body, far from native tissue", "B) At the junction between the flap and native tissue, rather than inside the flap", "C) Only in the vascular pedicle anastomosis", "D) Never near the flap", "E) Only in the contralateral unoperated neck"], "ans": "B", "n": 13}, {"q": "Chong et al. (AJNR 2001) studied the muscle of myocutaneous flaps on MRI. Which statement is CORRECT?", "opts": ["A) Flap muscle never enhances, so any enhancement means recurrence", "B) Most muscular flap components show moderate or intense enhancement that may last many months and must not be assumed to be tumour", "C) Enhancement of flap muscle always means the flap has failed", "D) Pedicled and free flaps cannot be seen on T1W", "E) T2 signal of flap muscle is always identical to CSF"], "ans": "B", "n": 14}, {"q": "On MRI, how can the muscular part of a flap often be recognised?", "opts": ["A) It is never visible on T1W", "B) Muscle striations like normal muscle, best seen on T1W; T1 signal is isointense to muscle", "C) It is always darker than cortex on every sequence", "D) It looks identical to CSF on T1W", "E) Only DWI can show muscle"], "ans": "B", "n": 15}], "shorts": [{"q": "How do large arteries and jugular veins usually appear on contrast-enhanced T1-weighted MRI, and what accounts for the difference? (4 marks)", "note": "Any 4 points.", "bullets": ["Large arteries may appear hypointense or non-enhancing on contrast-enhanced T1-weighted images.", "Examples include the carotid, vertebral and basilar arteries.", "Their appearance is mainly caused by the flow-void effect.", "Rapidly flowing arterial blood leaves the imaging section before a strong signal can be recorded.", "Jugular veins usually appear contrast-enhancing or relatively hyperintense.", "Venous blood flows more slowly, allowing contrast-containing blood to produce a detectable signal."]}, {"q": "Under what circumstances is postoperative MRI particularly valuable for head-and-neck radiotherapy planning? (4 marks)", "note": "Any 4 points.", "bullets": ["Postoperative MRI is particularly valuable following major radical head-and-neck surgery.", "It is highly recommended when flap reconstruction has been performed.", "It is also valuable when a tissue or bony graft has been placed.", "MRI helps distinguish the reconstructive flap from adjacent native soft tissues.", "It may help identify the flap's vascular pedicle and its relationship to the treatment volume.", "MRI assists assessment of the surgical bed, residual tumour and possible postoperative complications.", "It improves identification and contouring of nearby organs at risk that are difficult to see on CT.", "It is most useful when registered with planning CT using thin-slice T1-weighted, contrast-enhanced T1-weighted and T2-weighted images."]}, {"q": "During MRI–CT registration, the skull base aligns well but the lower neck does not. What factors could explain this discrepancy, and what should the radiation therapist do? (4 marks)", "note": "Any 4 points.", "bullets": ["The patient's head-and-neck position may have differed between the MRI and planning CT examinations.", "Differences in neck flexion, extension or rotation can alter the curvature of the cervical region.", "Different immobilisation devices or the absence of the treatment mask during MRI can contribute to misalignment.", "Swallowing, breathing or other motion may change the position of lower-neck soft tissues.", "Postoperative changes, oedema, weight loss or flap reconstruction may alter the anatomy between examinations.", "The therapist should not accept a registration solely because the skull base is accurately aligned.", "Additional local registrations should be considered for the lower neck or other clinically important regions.", "Critical organs at risk and target contours should be reviewed and manually adjusted in consultation with the treating oncologist."]}, {"q": "Describe the roles of T1W, T1W contrast-enhanced, and T2W MRI sequences in MRI–CT co-registration and OAR contouring for head and neck radiotherapy. (6 marks)", "note": "6 marks. Cover all three sequences.", "bullets": ["T1W: anatomy and fatty marrow; used to match bony landmarks with planning CT; cortex is hypointense.", "T1W: preferred thin slices (e.g. ≤2 mm) for fusion and contouring.", "T1W contrast-enhanced: enhancing tumour and postoperative bed; large arteries often dark (flow-void); jugular veins usually enhance because flow is slower.", "T1W contrast-enhanced: helps separate flap, native tissue and vessels.", "T2W: CSF and oedema are bright; helps cord, brainstem and pre-pontine cistern.", "T2W: also helps optic nerves, chiasm and other OARs that are hard to see on CT, including the cochlea."]}, {"q": "Explain why postoperative MRI may be valuable after head and neck surgery with flap reconstruction or graft placement. Include two challenges of MRI–CT co-registration and two measures to improve contouring accuracy. (6 marks)", "note": "Value of MRI + 2 challenges + 2 measures.", "bullets": ["Postoperative MRI is highly recommended after flap reconstruction or graft placement.", "It helps separate the flap from native tissue, show the pedicle, and assess the surgical bed, residual tumour and OARs.", "Challenge: neck curvature or mask/position may differ between MRI and planning CT, so the skull base can fit while the lower neck does not.", "Challenge: postoperative change, oedema, weight loss or the flap itself can change anatomy between scans.", "Measure: do additional local registrations for the lower neck or other important regions; do not accept skull-base fit alone.", "Measure: manually adjust critical OARs and targets with the treating oncologist; use thin-slice T1W, T1W+contrast and T2W fused to planning CT."]}]}, {"title": "Abdomen (liver and adrenal)", "questions": [{"q": "Which MRI sequences are listed as essential for abdominal radiotherapy planning?", "opts": ["A) T1W only", "B) T1W, contrast-enhanced T1W, T2W, and DWI", "C) T2W and PET only", "D) DWI only", "E) CT only"], "ans": "B", "n": 1}, {"q": "Which contrast-enhanced T1W phase is specifically used in abdominal MRI assessment?", "opts": ["A) Delayed bone phase", "B) Portovenous phase", "C) Air phase", "D) Non-contrast fat phase", "E) Fluoroscopic phase"], "ans": "B", "n": 2}, {"q": "What slice thickness is preferred for abdominal MRI used in radiotherapy planning?", "opts": ["A) ≤2 mm", "B) 4 mm", "C) 6 mm", "D) 8 mm", "E) ≥10 mm"], "ans": "A", "n": 3}, {"q": "In abdominal MRI, T1W imaging is mainly useful for:", "opts": ["A) Identifying restricted diffusion", "B) Matching bony landmarks with planning CT", "C) Delineating CSF", "D) Measuring bowel peristalsis", "E) Identifying oedema only"], "ans": "B", "n": 4}, {"q": "Which feature commonly appears hypointense on T1W contrast-enhanced MRI because of the flow-void effect?", "opts": ["A) Gallbladder", "B) Biliary duct", "C) Portal vein", "D) Fatty marrow", "E) Oedema"], "ans": "C", "n": 5}, {"q": "Which MRI sequence is particularly useful for detecting restricted diffusion in hepatocellular carcinoma and liver metastases?", "opts": ["A) T1W", "B) T2W", "C) DWI", "D) CT", "E) FLAIR only"], "ans": "C", "n": 6}, {"q": "On T2W MRI, which structure is an important landmark for co-registration with planning CT in abdominal radiotherapy?", "opts": ["A) Gallbladder", "B) Bony cortex", "C) Air in bowel", "D) Calcification", "E) Surgical clips only"], "ans": "A", "n": 7}, {"q": "Which OARs are specifically highlighted for MRI-guided contouring in upper-abdominal radiotherapy?", "opts": ["A) Bladder and rectum", "B) Stomach and duodenum", "C) Femoral heads and anal canal", "D) Cochlea and optic chiasm", "E) Brachial plexus and parotid glands"], "ans": "B", "n": 8}, {"q": "Why may MRI interpretation after transarterial chemoembolisation (TACE) be difficult?", "opts": ["A) TACE eliminates all MRI signal.", "B) TACE can seriously affect tumour blood supply and vascularity.", "C) TACE prevents CT acquisition.", "D) TACE makes the liver smaller immediately.", "E) TACE causes all lesions to become identical on MRI."], "ans": "B", "n": 9}, {"q": "Why may multiple MRI–CT co-registrations be needed for liver radiotherapy?", "opts": ["A) The liver has no identifiable landmarks.", "B) CT cannot image the abdomen.", "C) Large liver volume and scattered tumour locations may produce imperfect alignment.", "D) DWI cannot be registered to CT.", "E) Contrast-enhanced MRI is not used in liver radiotherapy."], "ans": "C", "n": 10}, {"q": "Lee et al. (AJR 2011) compared well-differentiated HCC with a regenerative nodule. Which pair of findings better supports HCC than a regenerative nodule?", "opts": ["A) Hepatobiliary-phase hyperintensity and DWI hypointensity, with no arterial enhancement", "B) Hepatobiliary-phase hypointensity and high-b-value DWI hyperintensity (HCC also often arterial-enhancing)", "C) Both lesions always look identical on every sequence", "D) Regenerative nodules always restrict on DWI; HCC never does", "E) Only CT arterial phase can separate them; MRI is useless"], "ans": "B", "n": 11}, {"q": "Lan Qiong et al. (BMJ Open 2022) compared iodine-enhanced CT with gadoxetic acid–enhanced 3 T MRI for HCC detection. What is the practical point?", "opts": ["A) CT alone is always more sensitive than MRI, so MRI is not needed", "B) Gadoxetic acid–enhanced MRI (including hepatobiliary phase) detected HCC better than multiphase CT", "C) Ultrasound replaces both CT and MRI for SBRT planning", "D) Hepatobiliary-phase MRI must not be used in at-risk patients", "E) The study proved that fusion to planning CT is no longer needed"], "ans": "B", "n": 12}, {"q": "Rimola et al. (Eur Radiol 2020) looked at new arterial-enhancing liver lesions after HCC treatment. Which MRI pair best supports early recurrence rather than a benign lesion?", "opts": ["A) Hepatobiliary-phase hyperintensity and DWI hypointensity", "B) Hepatobiliary-phase hypointensity and DWI hyperintensity", "C) Portal-phase isointensity only, with no DWI", "D) A fatty capsule on T1W only", "E) Size under 1 cm on CT only"], "ans": "B", "n": 13}, {"q": "Hoegen-Saßmannshausen et al. (Cancers 2025) studied online-adaptive MR-guided RT for adrenal metastases. What happened because of motion during the fraction?", "opts": ["A) Target coverage was unchanged and GI OARs were never overdosed", "B) Intrafraction motion reduced target coverage and raised doses to nearby GI OARs; online adaptation still improved coverage compared with no adaptation", "C) Adaptation made stomach and duodenum constraints worse in every case", "D) Kidneys were the only OARs that ever failed constraints", "E) Adrenal SBRT never needs MRI because bone matching is enough"], "ans": "B", "n": 14}], "shorts": [{"q": "Describe the role of T1W, multiphase contrast-enhanced T1W, T2W, and DWI MRI in abdominal tumour delineation and MRI–CT co-registration. (6 marks)", "note": "6 marks. Cover the listed sequences.", "bullets": ["T1W: anatomy; mainly used to match bony landmarks with planning CT (fine-cut, e.g. ≤2 mm).", "Multiphase contrast-enhanced T1W (including portovenous, and often arterial and hepatobiliary): shows tumour enhancement and helps separate tumour from liver and vessels.", "On T1W+contrast, portal vein and other large vessels may be dark because of flow-void, which helps separate them from bile ducts.", "T2W: fluid structures; gallbladder (if present) is a useful MRI–CT landmark, with spinal cord.", "DWI: restricted diffusion is common in HCC and liver metastases and helps tumour detection.", "Together these sequences support target and OAR contouring (stomach, duodenum) when fused to planning CT."]}, {"q": "Explain why both pre-treatment and post-TACE MRI may be valuable when planning radiotherapy for liver tumours. Include two challenges that may affect MRI–CT co-registration. (6 marks)", "note": "Why both scans + 2 challenges.", "bullets": ["Pre-treatment MRI shows the original tumour extent, vascularity and restricted diffusion before TACE.", "Post-TACE MRI shows what remains after the blood supply has been changed.", "TACE (and anti-angiogenic drugs) can seriously affect tumour blood supply, so post-TACE images are often hard to interpret alone.", "Using both scans with planning CT reduces the risk of missing residual or original disease.", "Challenge: the liver is large and tumours may sit in scattered positions, so one global fusion may be imperfect.", "Challenge: enhancement and size can change after TACE, so landmarks and tumour position may not match planning CT; more than one local registration may be needed."]}]}, {"title": "Pelvis (prostate and rectum)", "questions": [{"q": "Which MRI approach is specifically listed for prostate cancer assessment?", "opts": ["A) MR angiography only", "B) Multiparametric MRI", "C) CT myelography", "D) FLAIR MRI only", "E) PET-CT only"], "ans": "B", "n": 1}, {"q": "Which set of MRI sequences is used in pelvic radiotherapy planning?", "opts": ["A) T1W only", "B) T2W only", "C) T1W, contrast-enhanced T1W, T2W, DCE-MRI, and DWI", "D) DWI only", "E) CT only"], "ans": "C", "n": 2}, {"q": "On T2W MRI, which pelvic structure typically appears hyperintense because it contains fluid?", "opts": ["A) Bony cortex", "B) Urine-filled bladder", "C) Calcification", "D) Air-filled rectum", "E) Cortical bone marrow only"], "ans": "B", "n": 3}, {"q": "Which structures are especially important MRI landmarks for pelvic MRI–CT co-registration?", "opts": ["A) Optic nerves and cochleae", "B) Cauda equina and sacral nerve roots", "C) Brachial plexus and parotids", "D) Hippocampi and brainstem", "E) Stomach and duodenum"], "ans": "B", "n": 4}, {"q": "Restricted diffusion on DWI is commonly seen in:", "opts": ["A) Prostate and rectal tumours", "B) Cortical bone only", "C) Normal bladder urine only", "D) Pelvic arteries only", "E) Surgical clips only"], "ans": "A", "n": 5}, {"q": "DWI can assist visualisation of which feature in locally advanced rectal cancer?", "opts": ["A) Central sulcus", "B) Extramural vascular invasion", "C) Pre-pontine cistern", "D) Hippocampal tail", "E) Brachial plexus"], "ans": "B", "n": 6}, {"q": "Why may internal and external iliac vessels appear contrast-enhancing on T1W contrast-enhanced MRI?", "opts": ["A) Their blood flow is relatively slow.", "B) They contain fatty marrow.", "C) They contain urine.", "D) They are always calcified.", "E) They produce diffusion restriction."], "ans": "A", "n": 7}, {"q": "Which OARs are specifically highlighted in pelvic MRI-guided contouring?", "opts": ["A) Cochlea and optic chiasm", "B) Bladder, rectum, and sacral nerve roots", "C) Stomach and duodenum", "D) Hippocampus and spinal cord", "E) Kidneys and adrenal glands"], "ans": "B", "n": 8}, {"q": "When are MRI scans of prostate and rectum highly recommended for radiotherapy co-registration?", "opts": ["A) Only after radiotherapy is complete", "B) Before and after neoadjuvant therapy", "C) Only during surgery", "D) Only if CT is unavailable", "E) Only for benign disease"], "ans": "B", "n": 9}, {"q": "Why is manual adjustment of OAR contours needed after MRI–CT co-registration?", "opts": ["A) MRI does not show soft tissue.", "B) Planning CT does not show anatomy.", "C) There is no perfect match between MRI and CT datasets.", "D) DWI cannot be viewed with other sequences.", "E) MRI always overestimates organ size."], "ans": "C", "n": 10}, {"q": "On the PIRADS overall score shown in the lecture, what does PIRADS 5 mean?", "opts": ["A) Clinically significant disease is highly unlikely", "B) Clinically significant disease is highly likely to be present", "C) The lesion is always benign BPH", "D) PIRADS 5 can be given from CT Hounsfield units alone", "E) PIRADS 5 means the scan has no DWI"], "ans": "B", "n": 11}, {"q": "Ng et al. (JAMA 2025, PRIME trial) compared biparametric MRI with multiparametric MRI for diagnosing prostate cancer. What was the main result?", "opts": ["A) Biparametric MRI (T2W + DWI, no DCE) was noninferior to mpMRI for clinically significant cancer", "B) DCE must always be added, or significant cancer is missed in most men", "C) T2W alone is enough; DWI can be dropped", "D) MRI cannot be used before biopsy", "E) Survival doubled with biparametric MRI"], "ans": "A", "n": 12}, {"q": "Gómez et al. (Radiología 2026) grouped rectal-cancer MRI risk. Which finding places a tumour in the high-risk (not low-risk) group?", "opts": ["A) T1–T2 tumour, MRF-negative and EMVI-negative", "B) EMVI-positive disease (or T3c/d with threatened mesorectal fat / N1–N2 with extranodal extension)", "C) A urine-filled bladder on T2W", "D) PIRADS 1 prostate lesion", "E) Gallbladder stones"], "ans": "B", "n": 13}, {"q": "After preoperative chemoradiotherapy for locally advanced rectal cancer, Crimi et al. (Eur Radiol 2023) compared sequences for EMVI. Which statement is CORRECT?", "opts": ["A) T2W was clearly better than DWI for EMVI", "B) DWI was more accurate than T2W and contrast-enhanced T1W for detecting EMVI", "C) Contrast-enhanced T1W was the only sequence that can show EMVI", "D) EMVI cannot be assessed on MRI after CRT", "E) Bone matching on T1W is used to score EMVI"], "ans": "B", "n": 14}, {"q": "Gaban et al. (J Appl Clin Med Phys 2026) validated synthetic CT from MRI on a 1.5 T MR-linac. What is the practical point for pelvic RT?", "opts": ["A) MRI can never be used without a planning CT", "B) Synthetic CT from MRI can be used for MR-only pelvic (and abdominal) radiotherapy on an MR-linac", "C) Synthetic CT replaces T2W for sacral nerve roots", "D) Only abdomen can have synthetic CT; pelvis cannot", "E) Synthetic CT is used only for PIRADS scoring"], "ans": "B", "n": 15}], "shorts": [{"q": "Why does dynamic contrast-enhanced MRI require a relatively small field of view or region of interest? (4 marks)", "note": "Any 4 points.", "bullets": ["Dynamic contrast-enhanced MRI requires repeated imaging before, during and after contrast administration.", "Images must be acquired rapidly to capture changes in contrast enhancement over time.", "A smaller field of view reduces the anatomical area that must be encoded.", "This shortens the acquisition time for each dynamic phase.", "Improved temporal resolution allows earlier and later enhancement patterns to be distinguished.", "The region of interest must therefore be centred accurately on the prostate, rectal tumour or other target to avoid missing relevant disease."]}, {"q": "What MRI findings would suggest extramural vascular invasion in locally advanced rectal cancer? (4 marks)", "note": "Any 4 points.", "bullets": ["Tumour signal extending beyond the muscularis propria suggests extramural spread.", "An adjacent extramural vessel may appear expanded or irregular.", "Intermediate tumour-like signal may be seen within the vessel lumen on T2-weighted images.", "The normal low-signal vessel wall or flow void may be disrupted.", "The vessel may show nodular or serpiginous extension of tumour signal.", "Restricted diffusion within or along the involved vessel supports viable tumour involvement.", "Abnormally low ADC values in the suspected vascular component provide additional supporting evidence.", "Multiplanar T2-weighted imaging and DWI should be reviewed together to distinguish true invasion from fibrosis, inflammation or artefact."]}, {"q": "Explain the roles of T1W, contrast-enhanced T1W, T2W, DCE-MRI, and DWI in pelvic radiotherapy planning for prostate and rectal cancer. (6 marks)", "note": "6 marks. Cover the listed sequences.", "bullets": ["T1W: anatomy and bone matching with planning CT.", "Contrast-enhanced T1W: iliac vessels may enhance because pelvic flow is relatively slow.", "T2W: urine in the bladder is hyperintense; important for cauda equina and sacral nerve roots, and for prostate/rectal anatomy.", "DCE-MRI: repeated small-FOV imaging to show enhancement over time; used in mpMRI of the prostate.", "DWI: restricted diffusion in prostate and rectal tumours; can show extramural vascular invasion.", "mpMRI (T2W + DWI + DCE) is the listed approach for prostate cancer assessment; OARs include bladder, rectum and sacral nerve roots."]}, {"q": "Describe the role of MRI in contouring pelvic OARs and explain why MRI before and after neoadjuvant therapy can be useful for prostate or rectal radiotherapy planning. (6 marks)", "note": "OARs + pre/post neoadjuvant.", "bullets": ["MRI helps contour bladder, rectum and sacral nerve roots, which are highlighted pelvic OARs.", "T2W shows urine and neural structures; there is no perfect MRI–CT match, so OAR contours still need manual adjustment.", "Pre-neoadjuvant MRI shows original tumour extent, including EMVI or prostate disease before shrinkage.", "Post-neoadjuvant MRI shows residual disease after treatment.", "Both scans are highly recommended for co-registration with planning CT.", "Using both reduces the risk of missing original or residual target when anatomy has changed."]}]}, {"title": "Gadolinium contrast and prostate spacers", "questions": [{"q": "How do T1 (positive) and T2 (negative) MRI contrast agents usually change the image?", "opts": ["A) T1 agents make tissues darker on T1W; T2 agents make tissues brighter on T2W", "B) T1 agents shorten T1 and make tissues brighter on T1W; T2 agents shorten T2/T2* and make tissues darker on T2/T2*W", "C) Both types always make every tissue brighter on every sequence", "D) Contrast agents change CT Hounsfield units, not MRI signal", "E) T2 agents are used only for bone matching to planning CT"], "ans": "B", "n": 1}, {"q": "How are MRI contrast agents grouped by biodistribution in the lecture?", "opts": ["A) Only oral agents exist", "B) Extracellular fluid (ECF) agents, blood-pool agents, and organ-specific agents", "C) Only blood-pool agents are used in brain scans", "D) Organ-specific agents stay only in bone cortex", "E) ECF agents never leave the blood vessels"], "ans": "B", "n": 2}, {"q": "Gadoxetate disodium (Primovist) is listed in the lecture as which type of agent?", "opts": ["A) A blood-pool agent used only for coronary MRA", "B) An organ-specific hepatobiliary agent", "C) An iron oxide T2 agent with no gadolinium", "D) An oral barium CT contrast", "E) A Group 1 linear agent used only for bone scans"], "ans": "B", "n": 3}, {"q": "What are the main clinical uses of T1 gadolinium-based contrast agents (GBCAs) listed in the lecture?", "opts": ["A) Only to darken the liver on T2W", "B) Blood vessels, organ perfusion, and areas of blood–brain barrier breakdown (tumour or inflammation)", "C) Only to match bony landmarks to planning CT", "D) Only oral bowel marking", "E) Only iron-store measurement"], "ans": "B", "n": 4}, {"q": "Superparamagnetic iron oxide (SPIO / USPIO) particles are used mainly as:", "opts": ["A) T1-positive GBCAs for brain tumours", "B) T2-negative agents for liver and spleen lesions (and related cell / lymph-node imaging)", "C) Iodine CT contrast", "D) Prostate hydrogel spacers", "E) Blood-pool MRA agents that stay bright on T1W for hours"], "ans": "B", "n": 5}, {"q": "Which safety statement is CORRECT?", "opts": ["A) GBCAs are generally better tolerated than CT iodine contrast; severe anaphylaxis is rare", "B) Mild GBCA reactions occur in about half of all patients", "C) Iron oxide agents never cause any symptoms during injection", "D) GBCAs are forbidden in every patient with any cancer", "E) NSF is more common with macrocyclic Group 2 agents than with ionic linear Group 1 agents"], "ans": "A", "n": 6}, {"q": "Why are rectal spacers used in prostate SBRT on MR-linac or MR simulation?", "opts": ["A) To increase rectal dose so the rectum is sterilised", "B) To push the rectum away from the prostate and reduce rectal (and nearby OAR) dose", "C) To replace T2W MRI for PIRADS scoring", "D) To act as a T1 gadolinium contrast agent", "E) Spacers are used only in liver SBRT, never in prostate"], "ans": "B", "n": 7}, {"q": "Alongi et al. (Br J Radiol 2021) compared prostate MR-guided SBRT with versus without a hydrogel spacer. What was shown?", "opts": ["A) Spacer never changes rectal dose or target coverage", "B) Spacer improved rectal sparing and also helped PTV coverage on daily-adapted plans", "C) Spacer always doubled grade 3 rectal bleeding", "D) Spacer can be seen only on CT, never on MRI", "E) Spacer is placed in the bladder, not between prostate and rectum"], "ans": "B", "n": 8}, {"q": "For adaptive prostate SBRT, what does the lecture say you must do about the spacer?", "opts": ["A) Ignore it after day 1 because the shape never changes", "B) Closely monitor displacement and shape of the spacer", "C) Remove the spacer before every fraction", "D) Match the spacer only on DWI, never on T2W", "E) Spacers cannot be seen on MRI, so CT alone is enough"], "ans": "B", "n": 9}], "shorts": [{"q": "Why are macrocyclic gadolinium agents generally more stable and safer than linear gadolinium agents? (4 marks)", "note": "Any 4 points.", "bullets": ["A macrocyclic agent has a rigid, preformed ring-like ligand.", "The gadolinium ion is enclosed within the central cavity of this ligand.", "Multiple chemical bonds would have to be disrupted for gadolinium to escape.", "Macrocyclic agents therefore have higher thermodynamic binding stability.", "They also have greater kinetic inertness and release very little free gadolinium.", "Linear agents have a flexible, open-chain ligand that can unwind more easily.", "Linear agents are more susceptible to transmetallation, particularly when renal clearance is delayed.", "Macrocyclic agents consequently have a substantially lower risk of gadolinium release and nephrogenic systemic fibrosis."]}, {"q": "What patient factors should be assessed before administering a gadolinium-based contrast agent? (4 marks)", "note": "Any 4 points.", "bullets": ["The patient's renal function should be assessed, including recent eGFR or other appropriate renal-function results.", "A history of acute kidney injury, severe chronic kidney disease or dialysis should be identified.", "Previous reactions to gadolinium-based contrast agents should be documented.", "A history of severe allergy, asthma or multiple previous contrast reactions should be considered.", "Pregnancy or possible pregnancy should be assessed because gadolinium can cross the placenta.", "Breastfeeding status should be identified and managed according to the relevant institutional guideline.", "The type and cumulative number of previous gadolinium administrations should be considered when repeated examinations are planned.", "The clinical necessity of contrast, availability of a non-contrast alternative and choice of the lowest-risk suitable agent should be confirmed."]}]}];
+let QUESTIONS = [];
+
+let SHORTS = [];
+let sidx = 0;
+let mode = "mcq";
+let shortRevealed = false;
+
+function selectedShorts() {
+  SHORTS = [];
+  checkedChapters().forEach(ci => {
+    (DATA[ci].shorts || []).forEach((item, qi) => {
+      SHORTS.push({
+        chapterIndex: ci,
+        chapter: DATA[ci].title,
+        localN: qi + 1,
+        total: DATA[ci].shorts.length,
+        q: item.q,
+        note: item.note || "",
+        bullets: item.bullets || []
+      });
+    });
+  });
+  sidx = 0;
+}
+
+function showShort() {
+  if (!SHORTS.length) {
+    $("startWarn").textContent = "No official short questions in the lectures you selected. Tick Lecture 4–8 (brain, H&N, abdomen, pelvis, contrast), or tap Select all.";
+    return;
+  }
+  mode = "short";
+  $("start").classList.add("hidden");
+  $("exam").classList.add("hidden");
+  $("result").classList.add("hidden");
+  $("shorts").classList.remove("hidden");
+  const item = SHORTS[sidx];
+  shortRevealed = false;
+  $("shortBadge").textContent = `Lecture ${item.chapterIndex + 1}  ·  Short ${item.localN} of ${item.total}  ·  ${item.chapter}`;
+  $("shortQ").textContent = item.q;
+  $("shortNote").textContent = item.note || "Mark scheme";
+  $("shortAns").innerHTML = item.bullets.map(b => `<li>${b}</li>`).join("");
+  applyShortReveal();
+  $("shortPos").textContent = `Short question ${sidx + 1} of ${SHORTS.length}`;
+  $("shortBar").style.width = ((sidx + 1) / SHORTS.length * 100) + "%";
+  $("shortBack").disabled = sidx === 0;
+  $("shortNext").textContent = sidx === SHORTS.length - 1 ? "Home" : "Next";
+  window.scrollTo(0, 0);
+}
+
+function applyShortReveal() {
+  $("shortScheme").classList.toggle("hidden", !shortRevealed);
+  $("checkAnsBtn").textContent = shortRevealed ? "Hide answer" : "Check answer";
+}
+
+function goShortNext() {
+  if (sidx < SHORTS.length - 1) {
+    sidx += 1;
+    showShort();
+    return;
+  }
+  goHome();
+}
+
+function goShortBack() {
+  if (sidx === 0) return;
+  sidx -= 1;
+  showShort();
+}
+
+
+let answers = [];
+let idx = 0;
+let selectedChapters = DATA.map((_, i) => i);
+
+function $(id) { return document.getElementById(id); }
+
+function letter(opt) {
+  return opt.trim().charAt(0);
+}
+
+function countAnswered() {
+  return answers.filter(a => a).length;
+}
+
+function checkedChapters() {
+  return Array.from(document.querySelectorAll("#chapterList input[type=checkbox]"))
+    .filter(box => box.checked)
+    .map(box => Number(box.getAttribute("data-ch")));
+}
+
+function updateTotalLine() {
+  const picked = checkedChapters();
+  const n = picked.reduce((sum, i) => sum + DATA[i].questions.length, 0);
+  $("startWarn").textContent = "";
+  if (!picked.length) {
+    $("totalLine").textContent = "Select at least one lecture.";
+    $("startBtn").disabled = true;
+    $("shortBtn").disabled = true;
+    return;
+  }
+  const ns = picked.reduce((sum, i) => sum + ((DATA[i].shorts || []).length), 0);
+  $("totalLine").textContent = picked.length + " lecture" + (picked.length > 1 ? "s" : "") + " selected · " + n + " MCQ · " + ns + " short (review only)";
+  $("shortBtn").disabled = false;
+  $("startBtn").disabled = false;
+  if (ns === 0) {
+    $("startWarn").textContent = "Lectures 1–3 have no official short questions. Tick Lecture 4–8, or tap Select all, then Review short questions.";
+  }
+}
+
+function setAll(on) {
+  document.querySelectorAll("#chapterList input[type=checkbox]").forEach(box => {
+    box.checked = on;
+    box.closest(".ch").classList.toggle("on", on);
+  });
+  updateTotalLine();
+}
+
+function buildQuestions() {
+  QUESTIONS = [];
+  selectedChapters = checkedChapters();
+  selectedChapters.forEach(ci => {
+    DATA[ci].questions.forEach((q, qi) => {
+      QUESTIONS.push({
+        chapterIndex: ci,
+        chapter: DATA[ci].title,
+        localN: qi + 1,
+        q: q.q,
+        opts: q.opts,
+        ans: q.ans
+      });
+    });
+  });
+  answers = new Array(QUESTIONS.length).fill(null);
+  idx = 0;
+}
+
+function goHome() {
+  showStart();
+  window.scrollTo(0, 0);
+}
+
+function showStart() {
+  $("start").classList.remove("hidden");
+  $("exam").classList.add("hidden");
+  $("result").classList.add("hidden");
+  if ($("shorts")) $("shorts").classList.add("hidden");
+  const keep = new Set(selectedChapters);
+  $("chapterList").innerHTML = DATA.map((ch, i) =>
+    `<label class="ch${keep.has(i) ? " on" : ""}">
+      <span class="ch-left">
+        <input type="checkbox" data-ch="${i}" ${keep.has(i) ? "checked" : ""}>
+        <span><b>Lecture ${i + 1}.</b> ${ch.title}</span>
+      </span>
+      <span>${ch.questions.length} MCQ · ${(ch.shorts || []).length} short</span>
+    </label>`
+  ).join("");
+  $("chapterList").querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("change", () => {
+      inp.closest(".ch").classList.toggle("on", inp.checked);
+      updateTotalLine();
+    });
+  });
+  $("startWarn").textContent = "";
+  updateTotalLine();
+}
+
+function renderQuestion() {
+  const item = QUESTIONS[idx];
+  $("start").classList.add("hidden");
+  $("result").classList.add("hidden");
+  if ($("shorts")) $("shorts").classList.add("hidden");
+  $("exam").classList.remove("hidden");
+  $("chapterBadge").textContent = `Lecture ${item.chapterIndex + 1}  ·  Q${item.localN} of ${DATA[item.chapterIndex].questions.length}  ·  ${item.chapter}`;
+  $("qText").textContent = item.q;
+  $("posLabel").textContent = `Question ${idx + 1} of ${QUESTIONS.length}`;
+  $("answeredLabel").textContent = `Answered ${countAnswered()} / ${QUESTIONS.length}`;
+  $("barFill").style.width = ((idx + 1) / QUESTIONS.length * 100) + "%";
+  $("warn").textContent = "";
+  $("opts").innerHTML = item.opts.map(opt => {
+    const L = letter(opt);
+    const sel = answers[idx] === L ? "selected" : "";
+    const chk = answers[idx] === L ? "checked" : "";
+    return `<label class="opt ${sel}"><input type="radio" name="opt" value="${L}" ${chk}><span>${opt}</span></label>`;
+  }).join("");
+  $("opts").querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("change", () => {
+      answers[idx] = inp.value;
+      $("opts").querySelectorAll(".opt").forEach(el => el.classList.remove("selected"));
+      inp.closest(".opt").classList.add("selected");
+      $("answeredLabel").textContent = `Answered ${countAnswered()} / ${QUESTIONS.length}`;
+      $("warn").textContent = "";
+    });
+  });
+  $("backBtn").disabled = idx === 0;
+  $("nextBtn").textContent = idx === QUESTIONS.length - 1 ? "Submit exam" : "Next";
+}
+
+function goNext() {
+  if (!answers[idx]) {
+    $("warn").textContent = "Please choose an answer before continuing.";
+    return;
+  }
+  if (idx < QUESTIONS.length - 1) {
+    idx += 1;
+    renderQuestion();
+    window.scrollTo(0, 0);
+    return;
+  }
+  if (countAnswered() < QUESTIONS.length) {
+    const first = answers.findIndex(a => !a);
+    $("warn").textContent = `Please answer every question. Unanswered from question ${first + 1}.`;
+    return;
+  }
+  showResult();
+}
+
+function goBack() {
+  if (idx === 0) return;
+  idx -= 1;
+  renderQuestion();
+  window.scrollTo(0, 0);
+}
+
+function showResult() {
+  $("exam").classList.add("hidden");
+  $("start").classList.add("hidden");
+  if ($("shorts")) $("shorts").classList.add("hidden");
+  $("result").classList.remove("hidden");
+  let correct = 0;
+  const byCh = DATA.map(() => ({ c: 0, t: 0 }));
+  QUESTIONS.forEach((item, i) => {
+    byCh[item.chapterIndex].t += 1;
+    if (answers[i] === item.ans) {
+      correct += 1;
+      byCh[item.chapterIndex].c += 1;
+    }
+  });
+  const pct = Math.round(correct / QUESTIONS.length * 100);
+  $("scoreBig").textContent = `${correct} / ${QUESTIONS.length}`;
+  $("scoreSub").textContent = `Final mark: ${pct}%`;
+  $("chScores").innerHTML = selectedChapters.map(i => {
+    const p = Math.round(byCh[i].c / byCh[i].t * 100);
+    return `<div class="ch-score"><span>Lecture ${i + 1}. ${DATA[i].title}</span><b>${byCh[i].c}/${byCh[i].t} (${p}%)</b></div>`;
+  }).join("");
+  $("review").innerHTML = QUESTIONS.map((item, i) => {
+    const ok = answers[i] === item.ans;
+    const yours = item.opts.find(o => letter(o) === answers[i]) || answers[i];
+    const right = item.opts.find(o => letter(o) === item.ans);
+    return `<div class="rev ${ok ? "ok" : "bad"}">
+      <div class="mark">${ok ? "Correct" : "Incorrect"} · Lecture ${item.chapterIndex + 1} Q${item.localN}</div>
+      <p><b>${item.q}</b></p>
+      <p>Your answer: ${yours}</p>
+      <p>Correct answer: ${right}</p>
+    </div>`;
+  }).join("");
+  window.scrollTo(0, 0);
+}
+
+function startExam() {
+  buildQuestions();
+  if (!QUESTIONS.length) {
+    $("startWarn").textContent = "Select at least one lecture.";
+    return;
+  }
+  renderQuestion();
+  window.scrollTo(0, 0);
+}
+
+$("startBtn").addEventListener("click", startExam);
+$("shortBtn").addEventListener("click", () => { selectedShorts(); showShort(); });
+$("homeShortBtn").addEventListener("click", goHome);
+$("checkAnsBtn").addEventListener("click", () => {
+  shortRevealed = !shortRevealed;
+  applyShortReveal();
+});
+$("shortNext").addEventListener("click", goShortNext);
+$("shortBack").addEventListener("click", goShortBack);
+$("resultShortsBtn").addEventListener("click", () => { selectedShorts(); showShort(); });
+$("allBtn").addEventListener("click", () => setAll(true));
+$("noneBtn").addEventListener("click", () => setAll(false));
+$("nextBtn").addEventListener("click", goNext);
+$("backBtn").addEventListener("click", goBack);
+$("homeExamBtn").addEventListener("click", goHome);
+$("homeResultBtn").addEventListener("click", goHome);
+$("retryBtn").addEventListener("click", () => {
+  answers = new Array(QUESTIONS.length).fill(null);
+  idx = 0;
+  renderQuestion();
+  window.scrollTo(0, 0);
+});
+showStart();
+</script>
+</body>
+</html>
